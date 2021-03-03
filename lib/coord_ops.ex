@@ -20,6 +20,14 @@ defmodule CoordOps do
     {-x,-y,-z,-w}
   end
   
+  def scale({x,y,z,w},s) do
+    {x*s,y*s,z*s,w*s}
+  end
+
+  def magnitude({x,y,z}) do
+     sqrt(x*x + y*y + z*z )
+  end
+
   def add_coord(t1,t2) do
     do_op(t1,t2,&(&1 + &2))
   end

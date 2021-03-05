@@ -4,11 +4,11 @@ defmodule CoordTest do
   import Math
 
   test "is a vector" do
-    assert CoordOps.vector({1,2,3}) == {1,2,3,0.0}
+    assert CoordOps.vector(1,2,3) == {1,2,3,0.0}
   end
   
   test "is a point" do
-    assert CoordOps.point({1,2,3}) == {1,2,3,1.0}
+    assert CoordOps.point(1,2,3) == {1,2,3,1.0}
   end
 
   test "adding point to a vector" do
@@ -16,7 +16,7 @@ defmodule CoordTest do
   end
 
   test "subtract two points" do
-    assert CoordOps.subtract_tuple(CoordOps.point({3,2,1}), CoordOps.point({5,6,7})) == CoordOps.vector({-2,-4,-6})
+    assert CoordOps.subtract_tuple(CoordOps.point(3,2,1), CoordOps.point(5,6,7)) == CoordOps.vector(-2,-4,-6)
   end
 
   test "negate tuple" do
@@ -36,13 +36,13 @@ defmodule CoordTest do
   end
   test "normalize vector" do
 #    assert CoordOps.normalize_vector(CoordOps.vector{1,2,3}) == CoordOps.vector({0.26726,0.53452,0.80178})
-    assert CoordOps.normalize_vector(CoordOps.vector{4,0,0}) == CoordOps.vector({1,0,0})
-    norm =  CoordOps.normalize_vector(CoordOps.vector{1,2,3})
+    assert CoordOps.normalize_vector(CoordOps.vector(4,0,0)) == CoordOps.vector(1,0,0)
+    norm =  CoordOps.normalize_vector(CoordOps.vector(1,2,3))
     assert CoordOps.magnitude(norm) == 1.0
   end
 
   test "dot product multiply and add elemnts of 2 tuples" do
-    assert CoordOps.dot(CoordOps.vector({1,2,3}),CoordOps.vector({2,3,4})) == 20
+    assert CoordOps.dot(CoordOps.vector(1,2,3),CoordOps.vector(2,3,4)) == 20
   end
 
   test "cross product multiply and add elemnts of 2 tuples" do

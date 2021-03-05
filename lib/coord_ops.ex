@@ -8,11 +8,11 @@ defmodule CoordOps do
     x <~> x1 and y <~> y1 and z <~> z1
   end
 
-  def point({x,y,z}) do
+  def point(x,y,z) do
     {x,y,z,1.0}
   end
 
-  def vector({x,y,z}) do
+  def vector(x,y,z) do
     {x,y,z,0.0}
   end
   

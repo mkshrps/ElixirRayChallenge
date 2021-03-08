@@ -23,7 +23,6 @@ defmodule Tryout do
       %{gravity: gravity,wind: wind}
     end
 
-    
     def tick(_env,_proj,1000,_y) do
       IO.puts("count = 10")
     end

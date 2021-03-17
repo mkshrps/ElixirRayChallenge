@@ -1,0 +1,245 @@
+defmodule Canvas do
+  #import CoordOps
+
+  def build_canvas(width,height,init_color) do
+    canvas = new_canvas_contig(width,height,init_color,0,{}) 
+    %{canvas: canvas,width: width, height: height}
+  end
+
+  def new_canvas_contig(width,height,color,count,canvas) when count < (width * height) do
+    new_canvas_contig(width,height,color,count+1,Tuple.append(canvas,color))  
+  end
+
+  def new_canvas_contig(_,_,_,_,canvas)  do
+    canvas
+  end
+  
+  def set_pixel_limit(canvas,width,height,row,col,color) when row <= height and col <= width do 
+    #canvas = canvas_map[:canvas]
+    #canvas = put_elem(canvas_map[:canvas],(canvas_map[:width] * (row-1))+(col-1),color) 
+    canvas = put_elem(canvas, (width * (row-1))+col-1,color) 
+    IO.inspect(canvas)
+    #%{canvas_map | canvas: canvas}
+  end
+  def set_pixel_limit(_,_,_,_,_,_) do
+    {:error , "x , y outside limits"}
+  end
+
+  def set_pixel(canvas_map,row,col,color) do
+    canvas = put_elem(canvas_map[:canvas], (canvas_map[:width] * row)+col,color) 
+    %{canvas_map | canvas: canvas}
+#    IO.inspect(canvas)
+  end
+
+  def get_pixel(canvas_map,row,col) do
+     elem(canvas_map[:canvas],canvas_map[:width] * (row) + (col))
+  end
+
+  # map tuple (pixel) values from 0..1 to 0..255
+  # return results in a 3 element list
+  def pix_to_255(pixel) do
+    l = Tuple.to_list(pixel)
+    Enum.map(l,fn(x) -> 
+      cond do
+      x < 0 -> 0
+      x > 1 -> 255  
+      x>= 0 and x<=1 -> round(x * 255) 
+      end 
+    end)
+  end
+
+  # add new mapped pixel value to a list l
+  def add_pixel_to_list(pixel,list) do
+    pix_to_255(pixel)
+    |> Enum.concat(list)
+  end
+
+  def canvas_to_list(canvas_map) do
+    canvas = canvas_map[:canvas]
+    #for p <- canvas, do: add_pixel_to_list(p,list)
+    size = tuple_size(canvas)
+    make_list(canvas,size,0,[])
+  end
+
+  def make_list(canvas,size,count,list) when count < size do
+    pixel = elem(canvas,count)
+    make_list(canvas,size,count+1,add_pixel_to_list(pixel,list))
+  end
+
+  def make_list(_,_,_,list) do
+    list
+  end
+  # canvas width = width of canvas in pixels (1 pixel = 8 chars)
+  # char count = counter for a line in characters max line width = 70
+  # pixel count = curent number of pixels on curreent line
+  # 
+
+  def num_len(x), do: String.length("#{x}") 
+
+  def add_num_to_str(str,num) do
+    str = str <> "#{num}"
+    {str, num_len(num)}
+  end
+  
+  def append_string(str,str2) do
+    {str <> str2, String.length(str2) }
+  end
+ 
+  def add_nl(str) do
+    str <> "\n"
+  end
+
+  def space(str) do
+    {str <> " ",1}
+  end
+
+  def it_fits?(num_to_add,strptr,linelen) do
+   strptr + num_len(num_to_add) <= linelen
+  end
+
+  def at_eol?(num_to_add,line_count,linelen) do
+   line_count + num_len(num_to_add) > linelen
+  end
+
+    # strmap = %{str: "", strval: 0, strcount: 0 }
+    # str = strmap.str <> "#{strmap.strval}"
+    
+  def dot_counter(dot_count) do
+    {dot_count + 1,0}
+  end
+
+  def dot_counter(2) do
+    {0,1}
+  end
+
+  def list_to_ppm_string([],ppm_map) do
+    IO.puts("ok")
+    IO.inspect(ppm_map.dest_str)
+  end
+
+  # start a new line if pixel count > width of canvas reset line_count and pixel count
+  def list_to_ppm_string(list,%{dest_str: dest_str,line_count: line_count,pix_count: pix_count,width: width}=ppm_map) when pix_count > width do 
+    dest_str = add_nl(dest_str)
+    ppm_map = %{ppm_map | dest_str: dest_str,line_count: 0,pix_count: 0}
+    list_to_ppm_string(list,ppm_map)
+  end
+
+  def list_to_ppm_string(list,%{dest_str: dest_str,line_count: line_count,pix_count: pix_count,width: width}=ppm_map) do 
+    [h|list] = list
+    # end of line reached so insert nw line
+    # reset line count
+    if at_eol?(h,line_count,70) do
+      dest_str = add_nl(dest_str)
+      # add the number to the string
+      {dest_str, line_count} =  add_num_to_str(dest_str,h) 
+      {dest_str, count} = space(dest_str)
+      line_count = line_count + count
+      # calc the pixel count, count = 0 if not full pixel or 1 if full pixel added 
+      {dot_count,pcount} = dot_counter(dot_count)
+
+      %{ppm_map | dest_str: dest_str, dot_count: dot_count, pix_count: pix_count+pcount ,line_count: line_count } 
+      list_to_ppm_string(list,ppm_map)
+    else
+    
+    {dot_count, p_count} = dot_counter(dot_count)
+    {dest_str, count} =  add_num_to_str(dest_str,h) 
+    line_count = line_count + count
+    {dest_str,count} = space(dest_str)
+    line_count = line_count + count
+    
+    ppm_map = %{ppm_map | dest_str: dest_str,line_count: line_count}
+    list_to_ppm_string(list,ppm_map)
+  
+    end
+  end
+
+  def canvas_to_string_direct(canvas_map) do
+    #canvas = canvas_map[:canvas]
+    #size = tuple_size(canvas)
+    canvas_map
+    |> canvas_to_list()
+    |> list_to_ppm_string(%{width: canvas_map.width,line_count: 0,pix_count: 0,dest_str: ""})
+  end
+
+  # P3 format
+  #
+  # width height of canvas
+  # bit depth (255)
+  # canvas string
+  #
+  def add_header(str,canvas_map) do
+    "P3 \n#{canvas_map[:width]} #{canvas_map[:height]}\n255\n" <> str  
+  end
+
+  def format_for_ppm(ppm_string) do
+    ppm_string
+  end
+
+  def write_to_ppm_file(ppm_string,fname) do
+    ppm_string
+  end
+
+  def ppm_file(canvas_map,fname) do
+    canvas_to_string_direct(canvas_map)
+    |> add_header(canvas_map)
+    |> format_for_ppm()
+    |> write_to_ppm_file(fname)
+  end
+end
+#
+  # make_row() creates a canvas of pixels as a list for test 
+  def  make_row(0,_) do
+    []
+  end
+
+  def  make_row(width,n) do
+    [{1,1,1}|make_row(width-1,n)]
+  end
+  #
+  #
+  def build_canvas(width,height,init_color) do
+    canvas = new_canvas_contig(width,height,init_color,0,{}) 
+    %{canvas: canvas,width: width, height: height}
+  end
+
+  def new_canvas_contig(width,height,color,count,canvas) when count < (width * height) do
+    new_canvas_contig(width,height,color,count+1,Tuple.append(canvas,color))  
+  end
+
+  def new_canvas_contig(_,_,_,_,canvas)  do
+    canvas
+  end
+  
+  def set_pixel_limit(canvas,width,height,row,col,color) when row <= height and col <= width do 
+    #canvas = canvas_map[:canvas]
+    #canvas = put_elem(canvas_map[:canvas],(canvas_map[:width] * (row-1))+(col-1),color) 
+    canvas = put_elem(canvas, (width * (row-1))+col-1,color) 
+    IO.inspect(canvas)
+    #%{canvas_map | canvas: canvas}
+  end
+
+  def set_pixel_limit(_,_,_,_,_,_) do
+    {:error , "x , y outside limits"}
+  end
+  # set pixel value by row,col 0 based index
+  def set_pixel(canvas_map,row,col,color) do
+    loc = (row * canvas_map.width) + (col) 
+    put_in(canvas_map,[:canvas,loc],color)  
+    #canvas = put_elem(canvas_map[:canvas], (canvas_map[:width] * row)+col,color) 
+    #%{canvas_map | canvas: canvas}
+#    IO.inspect(canvas)
+  end
+
+  def get_pixel(canvas_map,row,col) do
+     elem(canvas_map[:canvas],canvas_map[:width] * (row) + (col))
+  end
+
+  def map_pixel(pixel_list) do
+    Enum.map(pixel_list,fn t -> Tuple.to_list(t) end )
+  end
+
+  def get_row(list,start,count) do
+   Enum.slice(list,start,count)
+  end
+
+

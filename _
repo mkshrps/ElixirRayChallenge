@@ -1,0 +1,143 @@
+  @doc """
+  canvas_to_ppm()
+  Takes a canvas containing a number of rows of pixels
+  Each row as a list of pixel tuples {r,g,b} each pixel value is a float between 0 and 1
+  Each row is processed and output to a file defined by the filename 
+  The file is assumed to contain the ppm header
+  """
+  def canvas_to_ppm(_canvas,_,_,0,_) do
+    {:ok}   
+  end
+
+  def canvas_to_ppm(canvas,start,width,rowcount,fileptr) do
+    get_row_from_map(canvas,start,width)
+    |> line_to_string()
+    |> add_to_file(fileptr)
+    # process nexr row 
+    canvas_to_ppm(canvas,start + width,width,rowcount-1,fileptr)
+  end
+
+  def add_to_file(str,filename) do 
+    File.write(filename,str,[:append])
+  end
+
+  def line_to_string(pixels) do
+    # convert a canvas row (list of pixel tuples) to a flat list of values
+    # mapped between 0 and 255
+    Enum.reduce(pixels,[],fn {x,y,z}, acc -> [z,y,x|acc] end )
+    |> Enum.map(fn 
+       x when x <= 0 -> 0
+       x when x >= 1 -> 255  
+       x ->  trunc(x*255) 
+      end)
+    |> Enum.reverse()
+    # output the flat list to a ppm string clipping lines at 70 chars max 
+    |> to_str()
+  end
+
+  def to_str(list) do
+    maxcount = 70
+    to_str("",list,maxcount,0)
+  end
+
+  def to_str(str,[],_,_) do
+    String.trim(str) <> "\n"
+  end
+
+  def to_str(str,list,maxcount,lcount) when lcount > maxcount do
+    str = String.trim(str) <> "\n"
+    to_str(str,list,maxcount,0)
+  end
+
+  # default operation add new value to the string 
+  # this is the only place where we add a value to the string
+  def to_str(str,[h|list],maxcount,lcount) do
+    if (numlen(h) + lcount) > maxcount do
+      # if next value won't fit on this line force a new line
+      # lcount = maxcount + 1  
+      to_str(str,[h|list],maxcount,maxcount+1)
+      
+    else
+   #   lcount = lcount + String.length("#{h} ")
+      str <> "#{h} "
+      |> to_str(list,maxcount,lcount+ numlen(h) + space())
+    end
+  end
+  def space(), do: 1 
+
+  def numlen(n) do
+    String.length("#{n}")
+  end
+
+  def set_pixel_limit(canvas,width,height,row,col,color) when row <= height and col <= width do 
+    #canvas = canvas_map[:canvas]
+    #canvas = put_elem(canvas_map[:canvas],(canvas_map[:width] * (row-1))+(col-1),color) 
+    canvas = put_elem(canvas, (width * (row-1))+col-1,color) 
+    IO.inspect(canvas)
+    #%{canvas_map | canvas: canvas}
+  end
+
+  def set_pixel_limit(_,_,_,_,_,_) do
+    {:error , "x , y outside limits"}
+  end
+  
+  def loc(map,x,y) do
+    if (y >= 0 and y< map.height) and (x >=0 and x < map.width) do 
+      {:ok, ((y * map.width) + x)}
+    else
+      {:error , "coord out of limits"}
+    end
+  end
+
+  def set_pixel(canvas_map,x,y,color) do
+    case loc(canvas_map,x,y) do
+      {:ok, coord} ->
+        #IO.inspect({x,y,coord,color})
+        put_in(canvas_map,[:canvas,coord],color)  
+      {:error, msg } ->
+        IO.puts("#{msg} #{x},#{y}")
+        canvas_map        
+    end
+  end
+
+  def get_pixel(canvas_map,x,y) do
+    case loc(canvas_map,x,y) do
+      {:ok,coord} ->  
+      canvas_map.canvas[coord] 
+      {:error, msg } ->
+      IO.puts("#{msg} #{x},#{y}")
+      msg
+    end
+  end
+
+  def plot_pixel(map,x,y,color) do
+    px = x
+    py = map.height - y
+    set_pixel(map,px,py,color)
+  end
+
+    def plot(map,count,line,color) when count > 0  do
+    map = plot_pixel(map,map.width - count,line,color)
+    plot(map,count-1,line,color)
+    
+    end
+ 
+  def plot(map,0,_,_) do
+    map
+  end
+
+  def test_plot(width,height)  do
+    map = build_canvas_map(width,height,{0,0,0})
+    map = plot(map,width,25,{1,1,1}) 
+    map = plot(map,width,26,{1,1,1}) 
+    map = plot(map,width,27,{1,1,1}) 
+    generate_ppm_file(map,"test1.ppm")
+    map
+  end
+
+  def decode_plot(map,px,py) do
+    x = px 
+    y = map.height - py
+    {x,y,get_pixel(map,x,y)}
+  end
+end

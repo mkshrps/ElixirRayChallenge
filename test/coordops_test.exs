@@ -3,7 +3,7 @@ defmodule CoordTest do
   doctest CoordOps
   import Math
   import CoordOps
-
+  import Canvas
   def test_canvas(canvas,count,size) when count < size do 
     if elem(canvas,count) == {0,0,0} do 
       test_canvas(canvas,count+1,size)
@@ -18,7 +18,7 @@ defmodule CoordTest do
 
   test "canvas test" do
     c = Canvas.build_canvas(10,10,{0,0,0})
-    assert test_canvas(c[:canvas],0,c[:width] * c[:height]) == {:success}
+    #assert test_canvas(c[:canvas],0,c[:width] * c[:height]) == {:success}
     c = Canvas.set_pixel(c,3,4,{1,2,1})
     assert Canvas.get_pixel(c,3,4) == {1,2,1}
   end
@@ -78,5 +78,11 @@ defmodule CoordTest do
     assert CoordOps.cross({2,3,4,0},{1,2,3,0}) == {1,-2,1,0}
   end
 
+  test "set pixel in canvas do " do
+    canvas_map = build_canvas(3,4,{0,0,0})
+    canvas_map = set_pixel(canvas_map,2,3,{3,2,1})
+    assert get_pixel(canvas_map,2,3) == {3,2,1} 
+       
+  end
 end
 

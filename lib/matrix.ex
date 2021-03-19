@@ -1,6 +1,6 @@
-
 defmodule Matrix  do
-  def matrix(size) do
+
+  def create_matrix(size) do
     for _n <- 0..size-1, do: list_n(size)
   end
 
@@ -8,7 +8,93 @@ defmodule Matrix  do
     for _n <- 0..size - 1, do: 0 
   end
 
-  # list of columns([[r0.0,r0.1,r0.2,r0.3F],][r1.0,r1.1,r1.2,r1.3],col) :: [r0.0,r1.0]
+  # compare values in two matrices and return true if approxiamtely equal
+  # uses Enum.any? which will exit on first failure with true 
+  # but we need to return false in that case
+    def matrix_equal?(m1,m2) do
+    l1 = List.flatten(m1)
+    l2 = List.flatten(m2)
+    result = (Enum.zip(l1,l2)
+   # |> IO.inspect()
+    |> Enum.any?(fn {x,y} -> abs(x-y) >  0.11 end )
+    )
+    !result
+  end
+
+  # determinant of 2x2 matrix [[a,b][c,d]]
+  # matrix = [a,b],[c,d]
+  #swap [c,d]
+  #[a,b],[d,c]
+  #Zip the lists
+  #[{a,d},{b,c}]
+  # multiply the tuple values and map to new list
+  # [a*d,b*c]
+  # subtract ad - bc (careful to do this from right
+  #
+  def is_invertible(matrix) do
+    determinant(matrix) != 0
+  end
+
+  def invert(matrix) do
+    size = length(matrix) -1
+    det = determinant(matrix)
+    m = for row <- 0..size, do:
+      for col <- 0..size, do: Float.round(cofactor(matrix,row,col) / det ,5)
+    transpose(m)
+  end
+
+  def invert_r(matrix) do
+    size = length(matrix) -1
+    det = determinant(matrix)
+    m = for row <- 0..size, do:
+      for col <- 0..size, do: Float.round(cofactor(matrix,row,col) / det)
+    transpose(m)
+  end
+
+
+  def determinant([[a,b],[c,d]]) do
+    a*d - b*c
+  end
+
+  # note: cofactor calls determinnnant recursively
+  def determinant(matrix) do
+    row = List.first(matrix)
+    (for n <- 0..length(row)-1,  do: cofactor(matrix,0,n)) 
+    |> list_multiply(row)
+    |> Enum.reduce(fn x,acc -> x + acc end)
+  end
+  
+  def minor(matrix,row,col) do
+    submatrix(matrix,row,col)
+    |> determinant()
+  end
+
+  # same as minor but alters sign if required
+  # if row + col is odd swap sign
+  def cofactor(matrix,row,col)  do
+    m = minor(matrix,row,col)
+    if rem(row+col,2) == 1 do 
+      -m
+    else
+      m
+    end
+  end
+
+  def submatrix(matrix,row,col) do
+    remove_item(matrix,row)
+    |> remove_col(col)
+  end
+
+  def remove_col(rowlist,col_index) do
+    for n <- rowlist, do: remove_item(n,col_index)
+  end
+
+  def remove_item(matrix,item) do
+    List.delete_at(matrix,item)
+  end
+
+
+ # list of columns([[r0.0,r0.1,r0.2,r0.3],][r1.0,r1.1,r1.2,r1.3],...) :: [r0.0,r1.0]
   # col is zero based
   # get matrix size by checking length of first nested list
   # [h|[]] = List.at(l,col-1)
@@ -16,8 +102,15 @@ defmodule Matrix  do
   # dop the first col-1 values so we are picking the first column value from front of the list
   # grap the values for the column
 
+  # convert rows to columns and vice versa
+  def transpose(matrix) do
+    size = length(matrix)
+    for n <- 0..size-1, do: get_column(matrix,n)
+  end
+
   def get_column(matrix,col) do
-    size = length(List.first(matrix))
+    #row_size = length(List.first(matrix))
+    size = length(matrix)
     List.flatten(matrix)
     |> Enum.drop(col)
     |> Enum.chunk_every(1,size)
@@ -35,7 +128,6 @@ defmodule Matrix  do
     Enum.zip(row_list,col_list)
     |> Enum.map(fn({x,y}) -> x * y end)
   end
-
   
   def row_by_col_mul(matrix1,matrix2,row_index,col_index) do
     row = get_row(matrix1,row_index)
@@ -50,48 +142,23 @@ defmodule Matrix  do
     |> Enum.reduce(0,fn(x,acc) -> x + acc end)
   end
 
-
   # perform a 4x4 matrix multiplication on m1,m2 where m1 provides rows and m2 provides cols
   #
-  def matrix_multiply(m1,m2) do
+  def matrix_multiply(m1,[h|_t] =  m2) when is_list(h)  do
     size = length(List.first(m1))
     l = for row <- 0..size-1, col <- 0..size-1,  do: row_by_col_mul(m1,m2,row,col)
     Enum.chunk_every(l,4)
+  end
+
+  def matrix_multiply(m1,t) do
+    size = length(t)
+    for row <- 0..size-1,  do: row_by_tuple_mul(m1,t,row)
   end
 
   def matrix_tuple_multiply(m1,t) do
     size = length(t)
     for row <- 0..size-1,  do: row_by_tuple_mul(m1,t,row)
   end
-
-  def identity() do
-    [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
-  end
-
-  def tuple_list() do
-    [1,2,3,1]
-  end
-
-  def tuple_matrix() do
-    [[1,2,3,4],[2,4,4,2],[8,6,4,1],[0,0,0,1]]
-  end
-
-  def deflist1() do
-    [[1,2,3,4],[5,6,7,8,],[9,8,7,6],[5,4,3,2]]
-  end
-
-  def deflist2() do
-    [[-2,1,2,3],[3,2,1,-1],[4,3,6,5],[1,2,7,8]]
-  end
-
-  def deflist3() do
-    [[1,2,3,4],[2,3,4,5],[3,4,5,6],[4,5,6,7]]
-  end
-
-  def deflist4() do
-    [[0,1,2,4],[1,2,4,8],[2,4,8,16],[4,8,16,32]]
-  end
-
 end
 
 

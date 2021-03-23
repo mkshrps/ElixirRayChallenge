@@ -8,10 +8,28 @@ defmodule Matrix  do
     for _n <- 0..size - 1, do: 0 
   end
 
+  def matrix_fetch(matrix,row,col) do
+    List.flatten(matrix)
+    |>  Enum.at(row * length(matrix) + (col))
+  end
+
+  def matrix_update(matrix,row,col,new_value) do
+    row_to_update = Enum.at(matrix,row)
+    update = List.update_at(row_to_update,col,fn _e -> new_value end)
+    List.update_at(matrix,row,fn _e -> update end)    
+  end
+
   # compare values in two matrices and return true if approxiamtely equal
   # uses Enum.any? which will exit on first failure with true 
   # but we need to return false in that case
-    def matrix_equal?(m1,m2) do
+  
+  # m2 can be a tuple (point or vector)
+  def matrix_equal?(m1,m2={_x,_y,_z,_w}) do
+    Tuple.to_list(m2)
+    |> matrix_equal?(m1)
+  end
+
+  def matrix_equal?(m1,m2) do
     l1 = List.flatten(m1)
     l2 = List.flatten(m2)
     result = (Enum.zip(l1,l2)
@@ -142,19 +160,38 @@ defmodule Matrix  do
     |> Enum.reduce(0,fn(x,acc) -> x + acc end)
   end
 
-  # perform a 4x4 matrix multiplication on m1,m2 where m1 provides rows and m2 provides cols
+  # perform a matrix multiplication on m1,m2 where m1 provides rows and m2 provides cols
+  # works for multi column and single column (t2) matrices and point/vector tuples
   #
+  # point or vector need t be converted fron tuple to list
+  # and convert back to tuple 
+  def matrix_multiply(m,t = {_x,_y,_z,_w}) do
+    matrix_multiply(m,Tuple.to_list(t))
+    |> List.to_tuple()
+  end
+ 
+ # point or vector need t be converted fron tuple to list
+  # and convert back to tuple 
+  def matrix_multiply(t = {_x,_y,_z,_w},m) do
+    matrix_multiply(m,Tuple.to_list(t))
+    |> List.to_tuple()
+  end
+ 
+ # multi column where each columnn is a nested list
   def matrix_multiply(m1,[h|_t] =  m2) when is_list(h)  do
     size = length(List.first(m1))
     l = for row <- 0..size-1, col <- 0..size-1,  do: row_by_col_mul(m1,m2,row,col)
     Enum.chunk_every(l,4)
   end
 
+
+  # single column list (t) multiplication
   def matrix_multiply(m1,t) do
     size = length(t)
     for row <- 0..size-1,  do: row_by_tuple_mul(m1,t,row)
   end
 
+   
   def matrix_tuple_multiply(m1,t) do
     size = length(t)
     for row <- 0..size-1,  do: row_by_tuple_mul(m1,t,row)

@@ -7,6 +7,15 @@ defmodule Testmatrix  do
     [1,2,3,1]
   end
 
+  def test_point() do
+    {1,2,3,1}
+  end
+
+ def point_result() do
+    {18,24,33,1}
+  end
+
+
  def tuple_result() do
     [18,24,33,1]
   end

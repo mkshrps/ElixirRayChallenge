@@ -58,9 +58,9 @@ defmodule CoordTest do
   end
 
   test "scale tuple" do
-    assert CoordOps.scale({1,-2,3,-4},3.5) == {3.5,-7,10.5,-14}
-    assert CoordOps.scale({1,-2,3,-4},0.5) == {0.5,-1,1.5,-2}
-    assert CoordOps.scale({1,-2,3},0.5) == {0.5,-1,1.5}
+    assert CoordOps.scale_tuple({1,-2,3,-4},3.5) == {3.5,-7,10.5,-14}
+    assert CoordOps.scale_tuple({1,-2,3,-4},0.5) == {0.5,-1,1.5,-2}
+    assert CoordOps.scale_tuple({1,-2,3},0.5) == {0.5,-1,1.5}
   end
   test "normalize vector" do
 #    assert CoordOps.normalize_vector(CoordOps.vector{1,2,3}) == CoordOps.vector({0.26726,0.53452,0.80178})

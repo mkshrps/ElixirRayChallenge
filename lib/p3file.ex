@@ -13,7 +13,6 @@ defmodule P3_file do
     |> canvas_to_ppm(0,r,c,filename)
   end
 
-
   @doc """
   canvas_to_ppm()
   Takes a canvas  map

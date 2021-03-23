@@ -8,11 +8,11 @@ defmodule CoordOps do
     x <~> x1 and y <~> y1 and z <~> z1
   end
 
-  def point(x,y,z) do
+  def point(x\\0,y\\0,z\\0) do
     {x,y,z,1.0}
   end
 
-  def vector(x,y,z) do
+  def vector(x\\0,y\\0,z\\0) do
     {x,y,z,0.0}
   end
 
@@ -55,11 +55,11 @@ defmodule CoordOps do
     {-x,-y,-z,-w}
   end
   
-  def scale({x,y,z,w},s) do
+  def scale_tuple({x,y,z,w},s) do
     {x*s,y*s,z*s,w*s}
   end
 
-  def scale({x,y,z},s) do
+  def scale_tuple({x,y,z},s) do
     {x*s,y*s,z*s}
   end
   

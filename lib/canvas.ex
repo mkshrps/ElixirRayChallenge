@@ -13,7 +13,7 @@ defmodule Canvas do
 
   def build_canvas_map(row,col,init_color) do
     canvas =  build_canvas_map(%{},0,row * col,init_color)
-    %{canvas: canvas , width: row, height: col}
+    %{canvas: canvas , width: row, height: col, pscale: 1, orgx: 0, orgy: 0}
   end
 
   def build_canvas_map(map,start,term,_init_color) when start == term do
@@ -43,7 +43,7 @@ defmodule Canvas do
   def set_pixel(canvas_map,x,y,color) do
     case loc(canvas_map,x,y) do
       {:ok, coord} ->
-        #IO.inspect({x,y,coord,color})
+        IO.inspect({x,y,coord,color})
         put_in(canvas_map,[:canvas,coord],color)  
       {:error, msg } ->
         IO.puts("#{msg} #{x},#{y}")
@@ -65,8 +65,8 @@ defmodule Canvas do
   canvas origin being at top
   """
   def plot_pixel(map,x,y,color) do
-    px = x
-    py = map.height - y
+    px = round(x)
+    py = map.height - round(y)
     set_pixel(map,px,py,color)
   end
 

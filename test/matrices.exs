@@ -15,8 +15,10 @@ defmodule Matrixtest do
 
   test "multiply etc" do
     assert matrix_multiply(multiply_list1(),multiply_list2()) == multiply_result() 
-       # test with tuple
+       # test with single column matrix (list) 
     assert matrix_multiply(tuple_matrix(),tuple_list()) == tuple_result()
+    # test with a 4 element tuple (point or vector)
+    assert matrix_multiply(tuple_matrix(),test_point()) == point_result()
     assert is_invertible(invertible()) == true
     assert is_invertible(noninvertible()) == false
     assert invert(inverse()) == inverse_result()

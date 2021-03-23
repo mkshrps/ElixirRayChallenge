@@ -16,7 +16,9 @@ defmodule Raytest do
     i2 = intersection(2,s)
     list_of_s = intersections([],[i1,i2])
     assert Enum.at(list_of_s,0).t == 1
+    assert Enum.at(list_of_s,0).object == s
     assert Enum.at(list_of_s,1).t == 2
+    assert Enum.at(list_of_s,1).object == s
   end
 
 

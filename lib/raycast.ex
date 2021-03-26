@@ -31,14 +31,14 @@ defmodule Ray do
   end
 
    def intersect(obj,ray) do
-    obj_origin = obj.origin
      # mod so that ray is transformed by the sphere before calculating
-    ray = transform(ray,invert(obj.transform))      
-
-    # calculate the intersection maps for this object 
-    # compile into a list 
-    t_list = discriminant(obj_origin,ray) 
-    for t <- t_list, do: intersection(t,obj) 
+     # calculate the intersection maps for this object 
+     # compile into a list 
+     t_list = 
+     transform(ray,invert(obj.transform))      
+     |> discriminant(obj.origin) 
+     
+     for t <- t_list, do: intersection(t,obj) 
      # could incorporate count here as well with deeper map
      # %{count: length(l),ray_obj_intersections: result_of_for_loop}
    end
@@ -64,7 +64,7 @@ defmodule Ray do
   def hit(list_of_intersects) do
     result = 
     Enum.filter(list_of_intersects, fn(imap) -> imap.t >= 0 end)
-         |> Enum.min_by(fn map -> map.t end,fn -> {:miss, 0} end)
+    |> Enum.min_by(fn map -> map.t end,fn -> {:miss, 0} end)
     
     result
   end
@@ -81,7 +81,7 @@ defmodule Ray do
     |> Integer.to_string(36)
   end
 
-  def discriminant(sphere_origin,ray) do
+  def discriminant(ray,sphere_origin) do
     s_to_r = subtract_tuple(ray.origin, sphere_origin)
     a = dot(ray.direction,ray.direction)
     b = 2 * dot(ray.direction,s_to_r)

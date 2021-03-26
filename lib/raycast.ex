@@ -1,6 +1,9 @@
 defmodule Ray do
   import Math
   import CoordOps
+  import Matrix
+  import Transforms
+
  # @type ray_type() :: %{origin: tuple(), direction: tuple()}
   
   def ray(origin \\ point(0,0,0),direction \\ vector(0,0,0)) do
@@ -12,20 +15,60 @@ defmodule Ray do
     |> add_tuple(r.origin)
   end
 
-  def sphere() do
-    %{ id: gen_reference(), origin: point(0,0,0)}
+  def transform(ray,transform_matrix) do
+    rp =  matrix_multiply(transform_matrix,ray.origin)
+    rv = matrix_multiply(transform_matrix,ray.direction)
+    ray(rp,rv)
   end
   
+
+  def sphere(origin \\ point(0,0,0),transform \\ identity()) do
+    %{ id: gen_reference(), origin: origin,transform: transform}
+  end
+
+  def set_transform(object,transform) do
+    Map.put(object,:transform,transform)
+  end
+
+   def intersect(obj,ray) do
+    obj_origin = obj.origin
+     # mod so that ray is transformed by the sphere before calculating
+    ray = transform(ray,invert(obj.transform))      
+
+    # calculate the intersection maps for this object 
+    # compile into a list 
+    t_list = discriminant(obj_origin,ray) 
+    for t <- t_list, do: intersection(t,obj) 
+     # could incorporate count here as well with deeper map
+     # %{count: length(l),ray_obj_intersections: result_of_for_loop}
+   end
+
+  # easy function to get intersection record at index (0 or 1)
+  def intersect_at(intersects,index) when length(intersects) > 0 do
+    Enum.at(intersects,index)
+  end
+
   def intersection(t,obj) do
     %{t: t, object: obj}
-  end
+  end 
 
   def intersections(intersection_list,new_intersection_list) do
     Enum.concat(intersection_list,new_intersection_list)
   end
 
+  def intersections(intersection_list) do
+    intersection_list
+  end
 
-      
+
+  def hit(list_of_intersects) do
+    result = 
+    Enum.filter(list_of_intersects, fn(imap) -> imap.t >= 0 end)
+         |> Enum.min_by(fn map -> map.t end,fn -> {:miss, 0} end)
+    
+    result
+  end
+
   # generate a uniq ID value for an object   
   def gen_reference() do
     min = String.to_integer("100000", 36)
@@ -51,11 +94,6 @@ defmodule Ray do
     else
       [(-b - sqrt(result)) / (2 * a), (-b + sqrt(result)) / (2 * a)]
     end
-  end
-
-  def intersect(_sphere,ray) do
-    sphere_origin = point(0,0,0)
-    discriminant(sphere_origin,ray) 
   end
 
 end

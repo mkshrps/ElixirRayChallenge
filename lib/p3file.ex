@@ -3,14 +3,23 @@ defmodule P3_file do
 
   @doc """
   PPM mode_3 file generation functions
-
   """
-   def generate_ppm_file(canvas_map,filename) do
+  def generate_ppm_file(canvas_map,filename) do
     r = canvas_map.width
     c = canvas_map.height
     File.write(filename,"P3\n#{r} #{c}\n255\n")    
     canvas_map.canvas
     |> canvas_to_ppm(0,r,c,filename)
+  end
+
+  @doc """
+  open a ppm file and write the header block
+  P3
+  rows columns
+  255
+  """
+  def start_ppm_file(rows,cols,filename) do
+    File.write(filename,"P3\n#{rows} #{cols}\n255\n")    
   end
 
   @doc """
@@ -20,7 +29,6 @@ defmodule P3_file do
   Each row as a list of pixel tuples {r,g,b} each pixel value is a float between 0 and 1
   Each row is processed and output to a file defined by the filename 
   The file is assumed to contain the ppm header
-  
  
   def canvas_to_ppm(_canvas,_,_,0,_) do
     {:ok}   
@@ -103,6 +111,7 @@ defmodule P3_file do
       |> to_str(list,maxcount,lcount+ numlen(h) + space())
     end
   end
+
   def space(), do: 1 
 
   def numlen(n) do

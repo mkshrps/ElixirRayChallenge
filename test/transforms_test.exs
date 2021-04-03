@@ -157,18 +157,10 @@ defmodule Tranformtest do
      |> matrix_multiply(rotation_x(pi()/2))
      |> matrix_multiply(scaling(5,5,5))
      |> matrix_multiply(translation(10,5,7))
-     |> IO.inspect()
+   #  |> IO.inspect()
    )
     assert matrix_equal?(result,point(15,0,7)) == true
- 
-    result =(
-     point(1,0,1)
-     |> matrix_multiply(identity())
-     |> matrix_multiply(rotation_x(pi()/2))
-     |> matrix_multiply(scaling(5,5,5))
-     |> matrix_multiply(translation(10,5,7))
-     |> IO.inspect()
-   )
+  
   end
 
   test "piped transforms API " do
@@ -177,7 +169,7 @@ defmodule Tranformtest do
      |> (rotate_x(pi()/2))
      |> (scale(5,5,5))
      |> (translate(10,5,7))
-     |> IO.inspect()
+    # |> IO.inspect()
    )
     assert matrix_equal?(result,point(15,0,7)) == true
   end 

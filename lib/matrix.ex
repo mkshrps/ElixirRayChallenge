@@ -52,6 +52,11 @@ defmodule Matrix  do
   def is_invertible(matrix) do
     determinant(matrix) != 0
   end
+  #
+  # alias for invert
+  def inverse(matrix) do
+    invert(matrix)
+  end
 
   def invert(matrix) do
     size = length(matrix) -1
@@ -140,7 +145,6 @@ defmodule Matrix  do
     |> Enum.drop(row)
     |> List.first()
   end
-
   # multiply each value in list by corrresponding value in list1
   def list_multiply(row_list,col_list) do
     Enum.zip(row_list,col_list)
@@ -170,14 +174,14 @@ defmodule Matrix  do
     |> List.to_tuple()
   end
  
- # point or vector need t be converted fron tuple to list
+  # point or vector need t be converted fron tuple to list
   # and convert back to tuple 
   def matrix_multiply(t = {_x,_y,_z,_w},m) do
     matrix_multiply(m,Tuple.to_list(t))
     |> List.to_tuple()
   end
  
- # multi column where each columnn is a nested list
+  # multi column where each columnn is a nested list
   def matrix_multiply(m1,[h|_t] =  m2) when is_list(h)  do
     size = length(List.first(m1))
     l = for row <- 0..size-1, col <- 0..size-1,  do: row_by_col_mul(m1,m2,row,col)

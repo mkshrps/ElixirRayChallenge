@@ -2,15 +2,15 @@ defmodule Ray do
   import Math
   import CoordOps
   import Matrix
-  import Transforms
 
  # @type ray_type() :: %{origin: tuple(), direction: tuple()}
   
   def ray(origin \\ point(0,0,0),direction \\ vector(0,0,0)) do
     %{origin: origin, direction: direction}
   end
-# @spec position(ray_type(),number()) :: tuple() 
-  def position(r,scale_value) do
+  @doc """
+"""  
+ def position(r,scale_value) do
     scale_tuple(r.direction , scale_value)
     |> add_tuple(r.origin)
   end
@@ -19,15 +19,6 @@ defmodule Ray do
     rp =  matrix_multiply(transform_matrix,ray.origin)
     rv = matrix_multiply(transform_matrix,ray.direction)
     ray(rp,rv)
-  end
-  
-
-  def sphere(origin \\ point(0,0,0),transform \\ identity()) do
-    %{ id: gen_reference(), origin: origin,transform: transform}
-  end
-
-  def set_transform(object,transform) do
-    Map.put(object,:transform,transform)
   end
 
    def intersect(obj,ray) do
@@ -38,7 +29,8 @@ defmodule Ray do
      transform(ray,invert(obj.transform))      
      |> discriminant(obj.origin) 
      
-     for t <- t_list, do: intersection(t,obj) 
+     for t <- t_list, do: intersection(t,obj)  
+
      # could incorporate count here as well with deeper map
      # %{count: length(l),ray_obj_intersections: result_of_for_loop}
    end
@@ -59,26 +51,15 @@ defmodule Ray do
   def intersections(intersection_list) do
     intersection_list
   end
-
-
+  
+  @doc """
+    hit(list of intersects) :: intersect :: %{t: t, object: obj}
+    """
   def hit(list_of_intersects) do
     result = 
     Enum.filter(list_of_intersects, fn(imap) -> imap.t >= 0 end)
     |> Enum.min_by(fn map -> map.t end,fn -> {:miss, 0} end)
-    
     result
-  end
-
-  # generate a uniq ID value for an object   
-  def gen_reference() do
-    min = String.to_integer("100000", 36)
-    max = String.to_integer("ZZZZZZ", 36)
-
-    max
-    |> Kernel.-(min)
-    |> :rand.uniform()
-    |> Kernel.+(min)
-    |> Integer.to_string(36)
   end
 
   def discriminant(ray,sphere_origin) do

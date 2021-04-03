@@ -11,9 +11,39 @@ defmodule Canvas do
     Map.put(%{ width: width, height: height}, :canvas, canvas) 
   end
 
+  def copy_canvas(pixel_list) do
+    IO.puts("copying canvas")
+    for key <- 0..length(pixel_list)-1, into: %{}, do: {key,Enum.at(pixel_list,key)}
+    IO.puts("done")
+  end
+
+
   def build_canvas_map(row,col,init_color) do
     canvas =  build_canvas_map(%{},0,row * col,init_color)
-    %{canvas: canvas , width: row, height: col, pscale: 1, orgx: 0, orgy: 0}
+    %{canvas: canvas , 
+      width: row, 
+      height: col, 
+      pscale: 1, 
+      orgx: 0, 
+      orgy: 0,
+      dxw: 1, # world pixel conversion
+      dyw: 1  # x and y world units / pixel
+      }
+  end
+
+  # convert world units to pixels  
+  def world_to_pixel(world_width,world_height,%{width: width, height: height}= canvas_map) do
+    canvas_map
+    |> Map.put(:dxw,world_width/width)
+    |> Map.put(:dyw,world_height/height)
+  end 
+
+  def dx_w(world_width,canvas_width) do
+    world_width/canvas_width
+  end
+
+  def dy_w(world_height,canvas_height) do
+    world_height/canvas_height
   end
 
   def build_canvas_map(map,start,term,_init_color) when start == term do
@@ -62,7 +92,7 @@ defmodule Canvas do
   end
   @doc """
   functions for plotting to canvas adjust x,y coordinates to take account of 
-  canvas origin being at top
+  canvas (0.0) origin being at top
   """
   def plot_pixel(map,x,y,color) do
     px = round(x)

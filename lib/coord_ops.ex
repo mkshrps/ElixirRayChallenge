@@ -22,6 +22,9 @@ defmodule CoordOps do
 
   # t1,t2 4 ele tuples
   #
+  @doc """
+  add_tuple add 3 and 4 element tuples
+  """
   def add_tuple(t1,t2) do
     do_op(t1,t2,&(&1 + &2))
   end
@@ -29,6 +32,7 @@ defmodule CoordOps do
   def multiply_tuple(t1,t2) do
     do_op(t1,t2,&(&1 * &2))
   end
+
   def subtract_tuple(t1,t2) do
     do_op(t1,t2,&(&1 - &2))
   end
@@ -54,15 +58,19 @@ defmodule CoordOps do
   def negate({x,y,z,w}) do
     {-x,-y,-z,-w}
   end
-  
-  def scale_tuple({x,y,z,w},s) do
+
+  @doc """
+  scale_tuple :: tuple, scale -> :: tuple
+  works for 3 and 4 element tuples
+  """ 
+  def scale_tuple({x,y,z,w}=_v,s) do
     {x*s,y*s,z*s,w*s}
   end
 
-  def scale_tuple({x,y,z},s) do
+  def scale_tuple({x,y,z}=_v,s) do
     {x*s,y*s,z*s}
   end
-  
+
   def magnitude({x,y,z,w}) do
      sqrt(x*x + y*y + z*z + w*w)
   end
@@ -74,11 +82,17 @@ defmodule CoordOps do
     {x/v,y/v,z/v,w/v}
 
   end
+  
+  def normalize(v) do
+    normalize_vector(v)
+  end
+  @doc """
+  dot ::tuple ::tuple -> ::scalar 
+  """
   # t1,t2 are 4 ele tuples
   def dot(t1,t2) do
     {x,y,z,w} = multiply_tuple(t1,t2)
     x+y+z+w
-
   end
 
   def cross({x,y,z,w},{x1,y1,z1,_w1}) do

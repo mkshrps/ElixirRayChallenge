@@ -2,8 +2,8 @@ defmodule Raytest do
   use ExUnit.Case
   import Ray
   import CoordOps
-  import Matrix
   import Transforms
+  import Sphere
 
   test " intersect a scaled sphere with a ray " do
     r = ray(point(0,0,-5),vector(0,0,1))

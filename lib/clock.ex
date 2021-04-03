@@ -3,7 +3,12 @@ defmodule Clock do
   import CoordOps
   import Canvas
   import Transforms
-  
+  import Ray
+  import P3_file
+  import Sphere
+  import Material
+  import Shading
+
   def clock(points,scale) do
     canvas_map = build_canvas_map(100,100,{0,0,0})
     org_x = canvas_map.width / 2
@@ -12,8 +17,8 @@ defmodule Clock do
     canvas_map = Map.put(canvas_map,:orgx,org_x)
     canvas_map = Map.put(canvas_map,:orgy,org_y)
     canvas_map = Map.put(canvas_map,:pscale,pscale)
-    #
-    # Execute transforms and plot file
+
+    #vector(sqrt(3)/3,sqrt(3)/3,sqrt(3)/3) Execute transforms and plot file
     p = point(0,0,1)
     # build list of points to plot
     Enum.scan(0..points-1,p,fn _x,p ->  rotate_y(p,pi()/(points/2))  end)
@@ -22,7 +27,114 @@ defmodule Clock do
     # output to the file
     |> P3_file.generate_ppm_file("clock2.ppm")
   end
+
+  def draw_sphere_r(r,c) do
+    #canvas_map = build_canvas_map(100,100,{0,0,0})
+    # place the world origin on the canvas
+    #canvas_map = Map.put(canvas_map,:orgx,org_x)
+    #canvas_map = Map.put(canvas_map,:orgy,org_y)
+  #  canvas_map = Map.put(canvas_map,:pscale,pscale)
+    wall_size = 8
+    height = r 
+    width  = c 
+    file = "sphere2.ppm"
+    start_ppm_file(height,width,file)
+
+    dx_w = dx_w(wall_size,width)
+    dy_w = dx_w
+    half = wall_size/2
+
+    # create a sphere origin at 0,0,0
+    s = sphere()
+    m = material()
+    m = update_material(m,:color,{1,0.2,1})
+    s = update_sphere(s,:material,m)
+
+    light_pos = point(-10,10,-10)
+    light_color = color(1,1,1)
+    light = point_light(light_pos,light_color)
+
+    ray_origin = point(0,0,-10) 
+    for y <- 0..height-1 do 
+      for x <- 0..width-1 do
+        wx = -half + (x * dx_w) # set target x and y in world coords where origin is half width
+
+        wy = (half - (y * dy_w))
+        # fire a ray at the wall
+        v = subtract_tuple(point(wx,wy,5),ray_origin)
+        ray = ray(point(0,0,-10),normalize_vector(v))
+       
+        intersect(s,ray) |> hit() 
+        # get the color value at the hitpoint
+        |> check_hit_3d(ray,light)
+      end
+      |> line_to_string()
+      |> add_to_file(file)
  
+    end
+ end
+  
+  def check_hit_3d({:miss, _},_,_) do
+    {0,0,0}
+  end
+
+  def check_hit_3d(rayhit,ray,light) do
+    hitpoint = position(ray,rayhit.t)
+    normal = normal_at(rayhit.object,hitpoint)
+    eye = negate(ray.direction)
+    lighting(rayhit.object.material,light,hitpoint,eye,normal)     
+  end
+
+  def draw_sphere(r,c) do
+    #canvas_map = build_canvas_map(100,100,{0,0,0})
+    # place the world origin on the canvas
+    #canvas_map = Map.put(canvas_map,:orgx,org_x)
+    #canvas_map = Map.put(canvas_map,:orgy,org_y)
+  #  canvas_map = Map.put(canvas_map,:pscale,pscale)
+    wall_size = 8
+    height = r 
+    width  = c 
+    file = "sphere1.ppm"
+    start_ppm_file(height,width,file)
+
+    dx_w = dx_w(wall_size,width)
+    dy_w = dx_w
+    half = wall_size/2
+
+    # create a sphere origin at 0,0,0
+    s = sphere()
+    ray_origin = point(0,0,-10) 
+    for y <- 0..height-1 do 
+      for x <- 0..width-1 do
+        wx = -half + (x * dx_w) # set target x and y in world coords where origin is half width
+
+        wy = -half + (y * dy_w)
+        # fire a ray at the wall
+        v = subtract_tuple(point(wx,wy,5),ray_origin)
+        ray = ray(point(0,0,-10),normalize_vector(v))
+        intersect(s,ray)
+        |> hit() 
+        |> check_hit()
+      end
+      |> line_to_string()
+      |> add_to_file(file)
+ 
+    end
+ end
+  
+  def create_canvas(pixel_map,width,height) do
+    Map.put(%{ width: width, height: height}, :canvas, pixel_map) 
+  end
+  def check_hit({:miss, _}) do
+   #   IO.puts("black")
+    {0,0,0}
+  end
+
+  def check_hit(_) do
+   #  IO.puts("red")
+    {1,0,0}
+  end
+
   def create_plots(_p,acc,0) do
     acc
   end

@@ -9,7 +9,9 @@ defmodule Ray do
     %{origin: origin, direction: direction}
   end
   @doc """
-"""  
+  position(ray, scale_value) :: point
+  moves a ray origin point and rturns the new point
+  """  
  def position(r,scale_value) do
     scale_tuple(r.direction , scale_value)
     |> add_tuple(r.origin)
@@ -21,29 +23,41 @@ defmodule Ray do
     ray(rp,rv)
   end
 
-   def intersect(obj,ray) do
-     # mod so that ray is transformed by the sphere before calculating
-     # calculate the intersection maps for this object 
-     # compile into a list 
-     t_list = 
-     transform(ray,invert(obj.transform))      
-     |> discriminant(obj.origin) 
-     
-     for t <- t_list, do: intersection(t,obj)  
+  @doc """
+  intersect calculates intersections between ray and object
+  returns: list of intersections (maps)
+  [%{t: t, object: obj}...] 
+  """
+  def intersect(obj,ray) do
+   # mod so that ray is transformed by the sphere before calculating
+   # calculate the intersection maps for this object 
+   # compile into a list 
+   t_list = 
+   transform(ray,invert(obj.transform))      
+   |> discriminant(obj.origin) 
+   
+   for t <- t_list, do: intersection(t,obj)  
 
-     # could incorporate count here as well with deeper map
-     # %{count: length(l),ray_obj_intersections: result_of_for_loop}
-   end
+   # could incorporate count here as well with deeper map
+   # %{count: length(l),ray_obj_intersections: result_of_for_loop}
+  end
 
   # easy function to get intersection record at index (0 or 1)
   def intersect_at(intersects,index) when length(intersects) > 0 do
     Enum.at(intersects,index)
   end
 
+  @doc """
+  creaes a map of the intersection t value and the object intersected
+  intersection(t,obj) :: %{t: t, object: obj}
+  """
   def intersection(t,obj) do
     %{t: t, object: obj}
   end 
 
+  @doc """
+  intersections concatenates 2 list of intersects
+  """
   def intersections(intersection_list,new_intersection_list) do
     Enum.concat(intersection_list,new_intersection_list)
   end

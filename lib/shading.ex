@@ -58,10 +58,6 @@ defmodule Shading do
     scale_color(color,ambientv)
   end
 
-  def point_light( position \\ point(0,0,0), intensity \\ color(1,1,1) ) do
-    %{position: position, intensity: intensity}
-  end
-
   def scale_color({r,g,b},scale) do
     {r * scale, g * scale, b * scale}
   end

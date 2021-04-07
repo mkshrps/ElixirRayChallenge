@@ -25,3 +25,6 @@ raytrace-*.tar
 
 # Temporary files for e.g. tests
 /tmp
+# ppm render result files
+/ppm
+

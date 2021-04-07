@@ -61,10 +61,17 @@ defmodule Matrix  do
   def invert(matrix) do
     size = length(matrix) -1
     det = determinant(matrix)
-    m = for row <- 0..size, do:
-      for col <- 0..size, do: Float.round(cofactor(matrix,row,col) / det ,5)
-    transpose(m)
-  end
+    # manual check is_invertible saves repeating determinant calculation
+    if( det != 0 ) do
+      m = for row <- 0..size, do: 
+      for col <- 0..size, do: cofactor(matrix,row,col) / det 
+      transpose(m)
+    else
+      matrix
+    end
+
+
+    end
 
   def invert_r(matrix) do
     size = length(matrix) -1

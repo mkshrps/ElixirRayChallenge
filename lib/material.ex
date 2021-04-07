@@ -12,6 +12,11 @@ defmodule Material do
     %Material{}
   end
 
+  def material(opts) do
+    struct(material(),opts)
+  end
+
+
   def material(color,ambient,diffuse,specular,shininess) do
     %Material{
       color: color,
@@ -25,6 +30,10 @@ defmodule Material do
   def update_material(mat,key,val) do
     Map.put(mat,key,val)
   end
+  def update_material(material,opts) do
+    struct(material,opts)
+  end
+
 
 
   

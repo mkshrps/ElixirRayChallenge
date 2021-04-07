@@ -27,10 +27,29 @@ defmodule Sphere do
   def sphere() do
     %Sphere{id: gen_reference()}
   end
+  # opts are keyword list of sphere properties
+  # material = Material map
+  # origin
+  # transform
+  #
+  def sphere(opts) do
+    struct(sphere(),opts)
+  end
+
+  def update_sphere(s,opts) do
+    struct(s,opts)
+  end
 
   def update_sphere(s,key,val) do
     Map.put(s,key,val)
   end
+
+  def update_sphere_material(s, material_opts) do
+    material_struc = s.material  
+    material_struc = struct(material_struc,material_opts)
+    struct(s,material: material_struc)
+  end
+
   @doc """
    def sphere(origin \\ point(0,0,0),transform \\ identity(),material \\ material()) do
     %{ id: gen_reference(), 

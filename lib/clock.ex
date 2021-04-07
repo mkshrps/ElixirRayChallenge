@@ -6,8 +6,11 @@ defmodule Clock do
   import Ray
   import P3_file
   import Sphere
+  import Matrix
+  import Transforms
   import Material
   import Shading
+  import Lights
 
   def clock(points,scale) do
     canvas_map = build_canvas_map(100,100,{0,0,0})
@@ -37,7 +40,7 @@ defmodule Clock do
     wall_size = 8
     height = r 
     width  = c 
-    file = "sphere2.ppm"
+    file = "sphere3.ppm"
     start_ppm_file(height,width,file)
 
     dx_w = dx_w(wall_size,width)
@@ -49,12 +52,14 @@ defmodule Clock do
     m = material()
     m = update_material(m,:color,{1,0.2,1})
     s = update_sphere(s,:material,m)
-
+    ray_origin = point(0,0,-10) 
+    tr = matrix_multiply(rotation_z(pi()/4),scaling(1.75,1.0,1.0))
+    s = set_transform(s,tr) 
+    IO.inspect(s)
     light_pos = point(-10,10,-10)
     light_color = color(1,1,1)
     light = point_light(light_pos,light_color)
 
-    ray_origin = point(0,0,-10) 
     for y <- 0..height-1 do 
       for x <- 0..width-1 do
         wx = -half + (x * dx_w) # set target x and y in world coords where origin is half width

@@ -21,10 +21,10 @@ defmodule Matrixtest do
     assert matrix_multiply(tuple_matrix(),test_point()) == point_result()
     assert is_invertible(invertible()) == true
     assert is_invertible(noninvertible()) == false
-    assert invert(inverse()) == inverse_result()
+    assert invert_r(inverse()) == inverse_result()
 
-    assert invert(inverse2()) == inverse_result2()
-    assert invert(inverse3()) == inverse_result3()
+    assert invert_r(inverse2()) == inverse_result2()
+    assert invert_r(inverse3()) == inverse_result3()
 
     mc = matrix_multiply(inverse_mul(),inverse_mul2())
     mr =  matrix_multiply(mc, invert(inverse_mul2())) 

@@ -11,7 +11,7 @@ defmodule Raytest do
     s = set_transform(s,scaling(2,2,2))
     xs = intersect(s,r)
     assert length(xs) == 2
-    IO.inspect(xs)
+    #IO.inspect(xs)
     assert intersect_at(xs,0).t == 3
     assert intersect_at(xs,1).t == 7
   end
@@ -85,7 +85,7 @@ defmodule Raytest do
     s = sphere()
     i1 = intersection(1,s)
     i2 = intersection(2,s)
-    list_of_s = intersections([],[i1,i2])
+    list_of_s = intersections([i1,i2])
     assert Enum.at(list_of_s,0).t == 1
     assert Enum.at(list_of_s,1).t == 2
   end

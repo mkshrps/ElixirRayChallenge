@@ -1,4 +1,6 @@
 defmodule Clock do
+  @moduledoc false
+
   import Math
   import CoordOps
   import Canvas

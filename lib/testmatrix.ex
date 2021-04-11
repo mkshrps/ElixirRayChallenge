@@ -1,4 +1,6 @@
 defmodule Testmatrix  do
+@moduledoc false
+
   def identity() do
     [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
   end

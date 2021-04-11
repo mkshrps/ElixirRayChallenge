@@ -2,12 +2,12 @@ defmodule LightShadeTest do
   use ExUnit.Case
   doctest Shading
   import CoordOps
-  import Ray
   import Math
   import Shading
   import Matrix
   import Sphere
   import Material
+  import Lights
 
   test "eye beween light and surface" do
     m = material()
@@ -35,7 +35,8 @@ defmodule LightShadeTest do
     eyev = vector(0,0,-1)
     normalv = vector(0,0,-1)
     light = point_light(point(0,10,-10),color(1,1,1))
-    result = lighting(m,light,position,eyev,normalv)
+    {r,g,b} = lighting(m,light,position,eyev,normalv)
+    result = {Float.round(r,4),Float.round(g,4),Float.round(b,4)}
     assert result == color(0.7364,0.7364,0.7364)
   end
   test "eye in path of reflected vector" do
@@ -44,7 +45,8 @@ defmodule LightShadeTest do
     eyev = vector(0,-sqrt(2)/2,-sqrt(2)/2)
     normalv = vector(0,0,-1)
     light = point_light(point(0,10,-10),color(1,1,1))
-    result = lighting(m,light,position,eyev,normalv)
+    {r,g,b} = lighting(m,light,position,eyev,normalv)
+    result = {Float.round(r,4),Float.round(g,4),Float.round(b,4)}
     assert result == color(1.6364,1.6364,1.6364)
   end
 
@@ -132,8 +134,5 @@ defmodule LightShadeTest do
     n = normal_at(s,point(sqrt(3)/3,sqrt(3)/3,sqrt(3)/3))
     assert n == normalize(n) 
   end
-
-
-
 end
 

@@ -2,6 +2,7 @@ defmodule Tryout do
   import CoordOps
   import Canvas
   import P3_file
+  @moduledoc false
 
     def run_simulation(vx,vy) do
       proj = init_projectile(point(0,1,0), normalize_vector(vector(vx,vy,0)))

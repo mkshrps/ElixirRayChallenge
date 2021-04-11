@@ -73,10 +73,8 @@ defmodule Canvas do
   def set_pixel(canvas_map,x,y,color) do
     case loc(canvas_map,x,y) do
       {:ok, coord} ->
-        IO.inspect({x,y,coord,color})
         put_in(canvas_map,[:canvas,coord],color)  
-      {:error, msg } ->
-        IO.puts("#{msg} #{x},#{y}")
+      {:error, _msg } ->
         canvas_map        
     end
   end

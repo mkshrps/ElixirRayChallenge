@@ -4,12 +4,9 @@ defmodule Shading do
   import Math
 
   @doc """
-  def lighting(material,light,point,eyev,normalv) do
-  material
-  light - ::light_t
-  position - point defines origin of object being lit in world space
-  eyev - vector to eye
-  normalv - vecto to normal from surface at point of intersection
+  - obj_point  point defines origin of object being lit in world space
+  - eyev - vector to eye
+  - normalv - vecto to normal from surface at point of intersection
   """
   def lighting(material,light,obj_point,eyev,normalv) do
     # color value
